@@ -15,12 +15,16 @@ let connectedNodes = [];        // Stores all circle objects, although this step
 // it is useful for individual assignments as we may operate on individual circles.
  // Stores the circles selected as connection nodes (key "VIP" nodes)
 
+//Pulsing circles
 let noiseValues=[];//
 let noiseStep=0.01; //Increment size
-let noiseOffsets = []; //
-let globalNoiseOffset = 0;
+let noiseOffsets =[]; //
+let globalNoiseOffset =0;
 
-
+//Background
+let backgroundDots=[];
+let bgDotNoiseOffset=0;
+let bgDotNoiseStep=0.003;
 
 
 // =========================================================================
@@ -107,22 +111,47 @@ function drawNetworkLines() {
     semi-transparent white dots across the canvas. 
 */
 
-function drawBackgroundDots() {
-    push();
-    noStroke();
-  
-    let density = 0.004; // Controls how many dots per pixel area.
-    let numDots = floor(width * height * density); // Calculate the total number of dots based on canvas area and desired density.
+function initializeBackgroundDots() {
+    backgroundDots=[];
+    let density=0.004;
+    let numDots=floor(width*height*density);
 
     for (let i = 0; i < numDots; i++) {
-      let x = random(width); // Random x position within canvas
-      let y = random(height); // Random y position within canvas
+    let dot = {
+      baseX: random(width),
+      baseY: random(height),
+      noiseOffsetX: random(1000),
+      noiseOffsetY: random(1000, 2000),
+      size: random(1.5, 4),
+      alpha: random(100, 200)
+    };
+    backgroundDots.push(dot);
+  }
+}
+
+function updateAndDrawBackgroundDots() {
+  push();
+  noStroke();
+  for (let i = 0; i < backgroundDots.length; i++) {
+    let dot = backgroundDots[i];
     
-      let dotSize = random(width * 0.002, width * 0.005);// Set dot size relative to canvas width for responsiveness.
-      let alpha = random(100, 200);  // We want the dots have different opacity, so they look like shining stars!
-          fill(255, 255, 255, alpha); // Pure white, varying opacity
-          ellipse(x, y, dotSize);
-    }
+    let noiseX = noise(dot.noiseOffsetX + bgDotNoiseOffset);
+    let noiseY = noise(dot.noiseOffsetY + bgDotNoiseOffset);
+    
+    let displaceX = map(noiseX, 0, 1, -30, 30);
+    let displaceY = map(noiseY, 0, 1, -30, 30);
+    
+    let currentX = dot.baseX + displaceX;
+    let currentY = dot.baseY + displaceY;
+    
+    if (currentX < 0) currentX += width;
+    if (currentX > width) currentX -= width;
+    if (currentY < 0) currentY += height;
+    if (currentY > height) currentY -= height;
+    
+    fill(255, 255, 255, dot.alpha);
+    ellipse(currentX, currentY, dot.size);
+  }
   pop();
 }
 
@@ -470,6 +499,7 @@ function setup() {
         color(160, 180, 140), //  (Sage)
         color(200, 200, 210)  //  (Ash)
     ];
+    initializeBackgroundDots();
 
     createFixedLayout();
 }
@@ -481,7 +511,7 @@ function draw() {
 
     // 1. Background Texture
     // Draw random white dots that fill the canvas to create atmosphere
-    drawBackgroundDots();
+    updateAndDrawBackgroundDots();
 
     // 2. Layout Generation
     // Calculate positions for all circles based on a fixed geometric grid
@@ -491,6 +521,10 @@ function draw() {
     // Draw wide network lines between selected circle centres (VIP nodes)
     // Rendered BEFORE circles so lines appear to go *under* them
     drawNetworkLines();
+    for (let i = 0; i < circles.length; i++) {
+    let sizeMultiplier = noiseValues[i];
+    circles[i].display(sizeMultiplier);
+  }
 
     // 4. Main Circle Layer
     // Iterate through all circle objects and call their display method
@@ -499,6 +533,7 @@ function draw() {
     circles[i].display(sizeMultiplier);
   }
   globalNoiseOffset += noiseStep;
+  bgDotNoiseOffset += bgDotNoiseStep;
     
     //noLoop(); // This row is removed since the current code is animated
 }
