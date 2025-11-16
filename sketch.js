@@ -478,5 +478,5 @@ function draw() {
         c.display();
     }
     
-    noLoop(); // Static artwork, stop looping
+    //noLoop(); // This row is removed since the current code is animated
 }
