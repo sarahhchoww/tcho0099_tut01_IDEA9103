@@ -10,15 +10,17 @@
 let globalBgColor;       // Background colour
 let circleBasePalette;   // Base colours for the circles (Deep Earth tones)
 let patternPalette;          // Colours for patterns/details (High contrast/Bright)
-        // Stores all circle objects, although this step is not neccessary, 
+let circles = [];
+let connectedNodes = [];        // Stores all circle objects, although this step is not neccessary, 
 // it is useful for individual assignments as we may operate on individual circles.
  // Stores the circles selected as connection nodes (key "VIP" nodes)
 
 let noiseValues=[];//
 let noiseStep=0.01; //Increment size
+let noiseOffsets = []; //
+let globalNoiseOffset = 0;
 
-let circles = [];
-let connectedNodes = [];
+
 
 
 // =========================================================================
@@ -40,6 +42,8 @@ function windowResized() {
 function createFixedLayout() {
     circles = [];  //initialise
     connectedNodes = []; 
+    noiseValues = [];
+    noiseOffsets = [];
   
     // Base radius unit relative to canvas width
     let r = width / 8; 
@@ -60,12 +64,13 @@ function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
         let c = new Circle(x, y, r);
         circles.push(c);
 
-        noiseValues.push(1.0);
-        // Randomly select 70% of circles to be "nodes" for connections
-        if (random(1) < 0.7) {
-            connectedNodes.push(c);
-        }
+        noiseOffsets.push(circles.length * 2.5);  // Unique offset
+      noiseValues.push(1.0);                     // Start at 1.0
+    
+      if (random(1) < 0.7) {
+      connectedNodes.push(c);
     }
+  }
 }
 
 // --- Draw connecting lines ---
@@ -121,6 +126,13 @@ function drawBackgroundDots() {
   pop();
 }
 
+function updateNoiseValues() {
+  for (let i = 0; i < circles.length; i++) {
+    let noiseVal = noise(noiseOffsets[i] + globalNoiseOffset);
+    noiseValues[i] = map(noiseVal, 0, 1, 0.8, 1.2); // Scale to 80%-120%
+  }
+}
+
 // ======================================================================
 // ======================== CIRCLE CLASS ================================
 // ======================================================================
@@ -140,7 +152,7 @@ class Circle {
     constructor(x, y, r) {
         this.x = x;
         this.y = y;
-        this.r = r; 
+        this.baseR = r; 
 
         // Randomly assign pattern types
         this.outerPatternType = floor(random(4)); 
@@ -152,23 +164,19 @@ class Circle {
 
     // --- Main Display Method ---
     // Uses push/pop/translate to simplify drawing coordinates (relative to center 0,0)
-    display() {
+    display(sizeMultiplier = 1.0) { // NEW: Accept size parameter
+      this.r = this.baseR * sizeMultiplier; // NEW: Calculate current radius
+  
         push(); 
-        
-        // 1. Move origin to the circle's center
         translate(this.x, this.y); 
-        
-        // 2. Draw Buffer Circle (Mask)
-        // Cleans up the background behind the circle
+  
         this.drawHandDrawnCircle(this.r * 1.05, globalBgColor, null, 0);
-
-        // 3. Draw Patterns
         this.displayOuterPattern();  
         this.displayMiddlePattern(); 
         this.displayInnerPattern();  
-
-        pop(); // Restore coordinate system
-    }
+  
+        pop();
+}
 
     // --- Drawing Utilities (Helpers) ---
     /*
@@ -469,6 +477,8 @@ function setup() {
 function draw() {
     background(globalBgColor); 
 
+    updateNoiseValues(); 
+
     // 1. Background Texture
     // Draw random white dots that fill the canvas to create atmosphere
     drawBackgroundDots();
@@ -484,9 +494,11 @@ function draw() {
 
     // 4. Main Circle Layer
     // Iterate through all circle objects and call their display method
-    for (let c of circles) {
-        c.display();
-    }
+    for (let i = 0; i < circles.length; i++) {
+    let sizeMultiplier = noiseValues[i];
+    circles[i].display(sizeMultiplier);
+  }
+  globalNoiseOffset += noiseStep;
     
     //noLoop(); // This row is removed since the current code is animated
 }
