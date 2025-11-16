@@ -26,6 +26,10 @@ let backgroundDots=[];
 let bgDotNoiseOffset=0;
 let bgDotNoiseStep=0.003;
 
+//Smooth color transition
+let colorNoiseValues = [];
+let colorNoiseOffsets = [];
+
 
 // =========================================================================
 // ======================= Layout & Background =============================
@@ -48,6 +52,8 @@ function createFixedLayout() {
     connectedNodes = []; 
     noiseValues = [];
     noiseOffsets = [];
+    colorNoiseValues = [];
+    colorNoiseOffsets = [];
   
     // Base radius unit relative to canvas width
     let r = width / 8; 
@@ -68,8 +74,11 @@ function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
         let c = new Circle(x, y, r);
         circles.push(c);
 
-        noiseOffsets.push(circles.length * 2.5);  // Unique offset
-      noiseValues.push(1.0);                     // Start at 1.0
+        noiseOffsets.push(circles.length * 2.5);
+        noiseValues.push(1.0);
+
+        colorNoiseOffsets.push(circles.length * 3.7);  //offset
+        colorNoiseValues.push(0); 
     
       if (random(1) < 0.7) {
       connectedNodes.push(c);
@@ -157,8 +166,13 @@ function updateAndDrawBackgroundDots() {
 
 function updateNoiseValues() {
   for (let i = 0; i < circles.length; i++) {
+    // Size noise
     let noiseVal = noise(noiseOffsets[i] + globalNoiseOffset);
-    noiseValues[i] = map(noiseVal, 0, 1, 0.8, 1.2); // Scale to 80%-120%
+    noiseValues[i] = map(noiseVal, 0, 1, 0.8, 1.2);
+    
+    // NEW: Color noise (slower)
+    let colorNoise = noise(colorNoiseOffsets[i] + globalNoiseOffset * 0.3);
+    colorNoiseValues[i] = colorNoise;
   }
 }
 
@@ -193,8 +207,9 @@ class Circle {
 
     // --- Main Display Method ---
     // Uses push/pop/translate to simplify drawing coordinates (relative to center 0,0)
-    display(sizeMultiplier = 1.0) { // NEW: Accept size parameter
+    display(sizeMultiplier = 1.0, colorNoise = 0) { // NEW: Accept size parameter
       this.r = this.baseR * sizeMultiplier; // NEW: Calculate current radius
+      this.colorNoise = colorNoise;
   
         push(); 
         translate(this.x, this.y); 
@@ -206,6 +221,16 @@ class Circle {
   
         pop();
 }
+// Perlin noise for patterns and colors
+getBaseColorFromNoise() {
+    let index = floor(this.colorNoise * circleBasePalette.length) % circleBasePalette.length;
+    return circleBasePalette[index];
+}
+
+getPatternColorFromNoise() {
+    let index = floor(this.colorNoise * patternPalette.length) % patternPalette.length;
+    return patternPalette[index];
+  }
 
     // --- Drawing Utilities (Helpers) ---
     /*
@@ -268,9 +293,9 @@ class Circle {
     // ================= OUTER PATTERNS =================
     displayOuterPattern() {
         // we want random color to increase the diversity of the outer patterns
-        let baseColor = random(circleBasePalette);
+        let baseColor = this.getBaseColorFromNoise();
         this.drawHandDrawnCircle(this.r, baseColor, color(0, 50), 2);
-        let patCol = random(patternPalette);
+        let patCol = this.getPatternColorFromNoise();
 
         // draw the outer pattern based on the pattern type
         switch (this.outerPatternType) {
@@ -366,9 +391,9 @@ class Circle {
 
     // ================= MIDDLE PATTERNS =================
     displayMiddlePattern() {
-        let midBgColor = random(circleBasePalette);
+        let midBgColor = this.getBaseColorFromNoise();
         this.drawHandDrawnCircle(this.r * 0.55, midBgColor, null, 0);
-        let patCol = random(patternPalette);
+        let patCol = this.getPatternColorFromNoise();
 
         switch (this.middlePatternType) {
             case 0: this.drawMiddleConcentricDotsPattern(patCol); break;
@@ -419,7 +444,8 @@ class Circle {
     // Pattern 2: Solid Rings
     drawMiddleSolidRings(col) {
         this.drawHandDrawnCircle(this.r * 0.45, col, null, 0);
-        let col2 = random(patternPalette);
+        let col2Index = floor((this.colorNoise + 0.3) * patternPalette.length) % patternPalette.length;
+        let col2 = patternPalette[col2Index];
         this.drawHandDrawnCircle(this.r * 0.3, col2, null, 0);
     }
 
@@ -446,8 +472,9 @@ class Circle {
 
     // ================= INNER PATTERNS =================
     displayInnerPattern() {
-        this.drawHandDrawnCircle(this.r * 0.25, random(circleBasePalette), null, 0);
-        let patCol = random(patternPalette);
+        let innerBaseColor = this.getBaseColorFromNoise();
+        this.drawHandDrawnCircle(this.r * 0.25, innerBaseColor, null, 0);
+        let patCol = this.getPatternColorFromNoise();
         
         if (this.innerPatternType === 0) {
         // Simple large blob (Center Eye)
@@ -523,15 +550,13 @@ function draw() {
     drawNetworkLines();
     for (let i = 0; i < circles.length; i++) {
     let sizeMultiplier = noiseValues[i];
-    circles[i].display(sizeMultiplier);
+    let colorIndex = colorNoiseValues[i];  
+    circles[i].display(sizeMultiplier, colorIndex);
   }
 
     // 4. Main Circle Layer
     // Iterate through all circle objects and call their display method
-    for (let i = 0; i < circles.length; i++) {
-    let sizeMultiplier = noiseValues[i];
-    circles[i].display(sizeMultiplier);
-  }
+  
   globalNoiseOffset += noiseStep;
   bgDotNoiseOffset += bgDotNoiseStep;
     
