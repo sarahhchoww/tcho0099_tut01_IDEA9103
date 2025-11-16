@@ -44,7 +44,7 @@ let colorNoiseOffsets = [];
 function windowResized() {
     let size = min(windowWidth, windowHeight);
     resizeCanvas(size, size);
-    
+
     initializeBackgroundDots();
     createFixedLayout();
     
@@ -63,11 +63,11 @@ function createFixedLayout() {
 
     // Add circles along specific diagonal coordinates
     // Parameters: count, startX, startY, stepX, stepY, radius
-    addCirclesOnLine(5, width / 7.1, height / 7.1, width / 4.8, height / 4.8, r);
-    addCirclesOnLine(5, width / 2, (height * 2) / 20, width / 4.8, height / 4.8, r);
-    addCirclesOnLine(5, (width * 4) / 5, 0, width / 4.8, height / 4.8, r);
-    addCirclesOnLine(5, width / 20, height / 2.2, width / 4.8, height / 4.8, r);
-    addCirclesOnLine(5, 0, (height * 8) / 10, width / 4.8, height / 4.8, r);
+    addCirclesOnLine(3, width / 7.1, height / 7.1, width / 4.8, height / 4.8, r);
+    addCirclesOnLine(3, width / 2, (height * 2) / 20, width / 4.8, height / 4.8, r);
+    addCirclesOnLine(3, (width * 4) / 5, 0, width / 4.8, height / 4.8, r);
+    addCirclesOnLine(3, width / 20, height / 2.2, width / 4.8, height / 4.8, r);
+    addCirclesOnLine(3, 0, (height * 8) / 10, width / 4.8, height / 4.8, r);
 }
 
 function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
