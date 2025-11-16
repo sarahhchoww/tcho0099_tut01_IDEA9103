@@ -44,7 +44,10 @@ let colorNoiseOffsets = [];
 function windowResized() {
     let size = min(windowWidth, windowHeight);
     resizeCanvas(size, size);
-    draw();
+    
+    initializeBackgroundDots();
+    createFixedLayout();
+    
 }
 // --- Layout generation ---
 function createFixedLayout() {
@@ -87,7 +90,7 @@ function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
 }
 
 // --- Draw connecting lines ---
-function drawNetworkLines() {
+function drawNetworkLines() { // connectors
     let linkColor = color(240, 230, 200, 180); // Creamy color, semi-transparent
 
     // Use push/pop to isolate style settings for lines
@@ -122,17 +125,17 @@ function drawNetworkLines() {
 
 function initializeBackgroundDots() {
     backgroundDots=[];
-    let density=0.004;
-    let numDots=floor(width*height*density);
+    let density=0.004; // So that background would not be too dense
+    let numDots=floor(width*height*density); // Num. of dots changes with window size
 
-    for (let i = 0; i < numDots; i++) {
+    for (let i = 0; i < numDots; i++) { // for loop generates the dots
     let dot = {
-      baseX: random(width),
+      baseX: random(width), // Randomised x and y-coordinates based on window width & height
       baseY: random(height),
       noiseOffsetX: random(1000),
-      noiseOffsetY: random(1000, 2000),
-      size: random(1.5, 4),
-      alpha: random(100, 200)
+      noiseOffsetY: random(1000, 2000), // Smooth animation, noise for x and y will fall in diff range
+      size: random(1.5, 4), // Different sizes for the dots
+      alpha: random(100, 200) // Different opacity for the dots -> creates DEPTH
     };
     backgroundDots.push(dot);
   }
@@ -140,20 +143,20 @@ function initializeBackgroundDots() {
 
 function updateAndDrawBackgroundDots() {
   push();
-  noStroke();
-  for (let i = 0; i < backgroundDots.length; i++) {
+  noStroke(); // To model stars
+  for (let i = 0; i < backgroundDots.length; i++) { // for loop gives dots new position
     let dot = backgroundDots[i];
     
-    let noiseX = noise(dot.noiseOffsetX + bgDotNoiseOffset);
+    let noiseX = noise(dot.noiseOffsetX + bgDotNoiseOffset); // Incorporate time in noise to get smooth animation
     let noiseY = noise(dot.noiseOffsetY + bgDotNoiseOffset);
     
-    let displaceX = map(noiseX, 0, 1, -30, 30);
+    let displaceX = map(noiseX, 0, 1, -30, 30); // Convert noise to displacement to map the dots
     let displaceY = map(noiseY, 0, 1, -30, 30);
     
     let currentX = dot.baseX + displaceX;
     let currentY = dot.baseY + displaceY;
     
-    if (currentX < 0) currentX += width;
+    if (currentX < 0) currentX += width; // Ensure dots will not keep floating off the window
     if (currentX > width) currentX -= width;
     if (currentY < 0) currentY += height;
     if (currentY > height) currentY -= height;
@@ -193,8 +196,20 @@ class Circle {
     enabling controlled variation through generative rules.
 */
     constructor(x, y, r) {
+      this.isOrbiting = random(1) < 0.5;
+      if (this.isOrbiting) {
+        this.orbitCenterX = x;
+        this.orbitCenterY = y;
+        this.orbitRadius = random(width * 0.03, width * 0.12);
+        this.orbitAngle = random(TWO_PI);
+        this.orbitSpeed = random(0.003, 0.015);
+
+        this.x = this.orbitCenterX + cos(this.orbitAngle) * this.orbitRadius;
+        this.y = this.orbitCenterY + sin(this.orbitAngle) * this.orbitRadius;
+    } else {
         this.x = x;
         this.y = y;
+    }
         this.baseR = r; 
 
         // Randomly assign pattern types
@@ -203,6 +218,13 @@ class Circle {
         this.innerPatternType = floor(random(2)); 
 
         this.irregularity = 0.02; 
+    }
+    updatePosition() {
+      if (this.isOrbiting) {
+        this.orbitAngle += this.orbitSpeed;
+        this.x = this.orbitCenterX + cos(this.orbitAngle) * this.orbitRadius;
+        this.y = this.orbitCenterY + sin(this.orbitAngle) * this.orbitRadius;
+      }
     }
 
     // --- Main Display Method ---
@@ -531,10 +553,17 @@ function setup() {
     createFixedLayout();
 }
 
+function updateCirclePositions() {
+  for (let i = 0; i < circles.length; i++) {
+    circles[i].updatePosition();
+  }
+}
+
 function draw() {
     background(globalBgColor); 
 
     updateNoiseValues(); 
+    updateCirclePositions();
 
     // 1. Background Texture
     // Draw random white dots that fill the canvas to create atmosphere
