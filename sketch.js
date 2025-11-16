@@ -10,12 +10,15 @@
 let globalBgColor;       // Background colour
 let circleBasePalette;   // Base colours for the circles (Deep Earth tones)
 let patternPalette;          // Colours for patterns/details (High contrast/Bright)
-let circles;        // Stores all circle objects, although this step is not neccessary, 
+        // Stores all circle objects, although this step is not neccessary, 
 // it is useful for individual assignments as we may operate on individual circles.
-let connectedNodes; // Stores the circles selected as connection nodes (key "VIP" nodes)
+ // Stores the circles selected as connection nodes (key "VIP" nodes)
 
 let noiseValues=[];//
 let noiseStep=0.01; //Increment size
+
+let circles = [];
+let connectedNodes = [];
 
 
 // =========================================================================
@@ -459,6 +462,8 @@ function setup() {
         color(160, 180, 140), //  (Sage)
         color(200, 200, 210)  //  (Ash)
     ];
+
+    createFixedLayout();
 }
 
 function draw() {
@@ -470,7 +475,7 @@ function draw() {
 
     // 2. Layout Generation
     // Calculate positions for all circles based on a fixed geometric grid
-    createFixedLayout();
+    //createFixedLayout(); // move to setup()
 
     // 3. Connection Layer (Songlines)
     // Draw wide network lines between selected circle centres (VIP nodes)
