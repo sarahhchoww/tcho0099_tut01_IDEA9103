@@ -14,6 +14,9 @@ let circles;        // Stores all circle objects, although this step is not necc
 // it is useful for individual assignments as we may operate on individual circles.
 let connectedNodes; // Stores the circles selected as connection nodes (key "VIP" nodes)
 
+let noiseValues=[];//
+let noiseStep=0.01; //Increment size
+
 
 // =========================================================================
 // ======================= Layout & Background =============================
@@ -53,6 +56,8 @@ function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
         let y = startY + stepY * i;
         let c = new Circle(x, y, r);
         circles.push(c);
+
+        noiseValues.push(1.0);
         // Randomly select 70% of circles to be "nodes" for connections
         if (random(1) < 0.7) {
             connectedNodes.push(c);
