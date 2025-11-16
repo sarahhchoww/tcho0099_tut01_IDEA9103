@@ -83,7 +83,7 @@ function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
         colorNoiseOffsets.push(circles.length * 3.7);  //offset
         colorNoiseValues.push(0); 
     
-      if (random(1) < 0.7) {
+      if (random(1) < 0.8) {
       connectedNodes.push(c);
     }
   }
