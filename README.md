@@ -8,9 +8,21 @@ The size of the circles, the white dots in the background, and the colors of the
 ### Originality
 In addition to the gorup work, this sketch now looks more like the galaxy as the cirlces are in circular movement. This is well thought through, as the magnitude and direction of movement has a great impact for the big picture. Their movement is set in a circular route at different angles and speeds, morderated by perlin noise. </br>
 To match the theme, the white dots in the background also danced in the same way. Their randomised alpha values also provided visual depth. The rotating 'dash rings' also gives the feeling of 'self rotating planets'.</br>
-Moreover, with reference to the following images, a layer of dots was added to the background to model the star-studded galaxy. Most of dots are in a relatively dark color, with only some in a lighter tone to give a subtle feeling. The density of the dots are adjusted, so that the galaxy-dots fills the canvas, but the white dots, the brighter and larger stars, now rarer, will now stand out more than in the group work.
+Moreover, with reference to the following images, a layer of dots was added to the background to model the star-studded galaxy. Most of dots are in a relatively dark color, with only some in a lighter tone to give a subtle feeling. </br>
+```
+let galaxyColors = [
+      color (92, 78, 80), // dark red
+      color (113, 88, 78), // dark orange
+      color (27, 20, 14), // blue black
+      color (61, 60, 69), // dark blue
+      color (181, 156, 160), // light pink
+      color (130, 125, 134), // light purple
+    ]
+```
+The density of the dots are adjusted, so that the galaxy-dots fills the canvas, but the white dots, the brighter and larger stars, now rarer, will now stand out more than in the group work.
 ```
 size: isGalaxy ? random(1.5, 3.5) : random(2.5, 5)
+alpha: isGalaxy ? random(100, 200) : random(200, 255)
 ```
 ### Reference image
 ![Aboriginal art on the Galaxy](AboriginalGalaxy.jpg "Reference image") </br>
