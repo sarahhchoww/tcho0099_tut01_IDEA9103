@@ -41,7 +41,7 @@ let colorNoiseOffsets = [];
 // that sits underneath all circles.
 
 // --- Responsiveness ---
-function windowResized() {
+function windowResized() { // Sketch resizes according to window size
     let size = min(windowWidth, windowHeight);
     resizeCanvas(size, size);
 
@@ -63,6 +63,7 @@ function createFixedLayout() {
 
     // Add circles along specific diagonal coordinates
     // Parameters: count, startX, startY, stepX, stepY, radius
+    // Each line has 3 circles, different starting points
     addCirclesOnLine(3, width / 7.1, height / 7.1, width / 4.8, height / 4.8, r);
     addCirclesOnLine(3, width / 2, (height * 2) / 20, width / 4.8, height / 4.8, r);
     addCirclesOnLine(3, (width * 4) / 5, 0, width / 4.8, height / 4.8, r);
@@ -78,12 +79,12 @@ function addCirclesOnLine(count, startX, startY, stepX, stepY, r) {
         circles.push(c);
 
         noiseOffsets.push(circles.length * 2.5);
-        noiseValues.push(1.0);
+        noiseValues.push(1.0); // Ensure pulse is different for each circle
 
-        colorNoiseOffsets.push(circles.length * 3.7);  //offset
-        colorNoiseValues.push(0); 
+        colorNoiseOffsets.push(circles.length * 3.7);  
+        colorNoiseValues.push(0); // Ensure color animation is different
     
-      if (random(1) < 0.8) {
+      if (random(1) < 0.8) { // 80% chance that circle has a connecting node
       connectedNodes.push(c);
     }
   }
@@ -102,14 +103,14 @@ function drawNetworkLines() { // connectors
     strokeCap(ROUND); // Rounded ends for natural look
 
     for (let i = 0; i < connectedNodes.length; i++) {
-        for (let j = i + 1; j < connectedNodes.length; j++) {
+        for (let j = i + 1; j < connectedNodes.length; j++) { // Avoids checking the same pair
             let c1 = connectedNodes[i];
             let c2 = connectedNodes[j];
             // Compute Euclidean distance between two circle centers.
             // dist() is from the p5.js reference: https://p5js.org/reference/p5/dist/
             let d = dist(c1.x, c1.y, c2.x, c2.y); // Calculate distance between two nodes
             // Only connect nodes that are within a certain distance, so that circles next to each other are connected
-            if (d < width / 2.8) { 
+            if (d < width / 2.8) { // Will not draw a line across the canvas
                 line(c1.x, c1.y, c2.x, c2.y); 
             }
         }   
@@ -173,7 +174,7 @@ function updateNoiseValues() {
     let noiseVal = noise(noiseOffsets[i] + globalNoiseOffset);
     noiseValues[i] = map(noiseVal, 0, 1, 0.8, 1.2);
     
-    // NEW: Color noise (slower)
+    // Color noise (slower)
     let colorNoise = noise(colorNoiseOffsets[i] + globalNoiseOffset * 0.3);
     colorNoiseValues[i] = colorNoise;
   }
@@ -196,21 +197,21 @@ class Circle {
     enabling controlled variation through generative rules.
 */
     constructor(x, y, r) {
-      this.isOrbiting = random(1) < 0.5;
+      this.isOrbiting = random(1) < 0.6;
       if (this.isOrbiting) {
-        this.orbitCenterX = x;
-        this.orbitCenterY = y;
-        this.orbitRadius = random(width * 0.03, width * 0.12);
-        this.orbitAngle = random(TWO_PI);
-        this.orbitSpeed = random(0.003, 0.015);
+        this.orbitCenterX = x; 
+        this.orbitCenterY = y; // The centre
+        this.orbitRadius = random(width * 0.03, width * 0.12); // Different orbiting circumferemce
+        this.orbitAngle = random(TWO_PI); // Starts at a different angle, so they would not look robotic
+        this.orbitSpeed = random(0.003, 0.015); // Different orbiting speeds
 
-        this.x = this.orbitCenterX + cos(this.orbitAngle) * this.orbitRadius;
-        this.y = this.orbitCenterY + sin(this.orbitAngle) * this.orbitRadius;
+        this.x = this.orbitCenterX + cos(this.orbitAngle) * this.orbitRadius; 
+        this.y = this.orbitCenterY + sin(this.orbitAngle) * this.orbitRadius; // Starting position stored as x and y
     } else {
         this.x = x;
         this.y = y;
     }
-        this.baseR = r; 
+        this.baseR = r; // Original radius when circle has not started pulsing
 
         // Randomly assign pattern types
         this.outerPatternType = floor(random(4)); 
@@ -229,8 +230,8 @@ class Circle {
 
     // --- Main Display Method ---
     // Uses push/pop/translate to simplify drawing coordinates (relative to center 0,0)
-    display(sizeMultiplier = 1.0, colorNoise = 0) { // NEW: Accept size parameter
-      this.r = this.baseR * sizeMultiplier; // NEW: Calculate current radius
+    display(sizeMultiplier = 1.0, colorNoise = 0) { // Changed parameters for pulsing and animated colors
+      this.r = this.baseR * sizeMultiplier; // // updated radius since circle has a larger radius when pulsing
       this.colorNoise = colorNoise;
   
         push(); 
@@ -245,7 +246,7 @@ class Circle {
 }
 // Perlin noise for patterns and colors
 getBaseColorFromNoise() {
-    let index = floor(this.colorNoise * circleBasePalette.length) % circleBasePalette.length;
+    let index = floor(this.colorNoise * circleBasePalette.length) % circleBasePalette.length; // Round to whole num after multiplying; % to prevent 5
     return circleBasePalette[index];
 }
 
@@ -577,9 +578,9 @@ function draw() {
     // Draw wide network lines between selected circle centres (VIP nodes)
     // Rendered BEFORE circles so lines appear to go *under* them
     drawNetworkLines();
-    for (let i = 0; i < circles.length; i++) {
+    for (let i = 0; i < circles.length; i++) { // Calculates noise value 
     let sizeMultiplier = noiseValues[i];
-    let colorIndex = colorNoiseValues[i];  
+    let colorIndex = colorNoiseValues[i];
     circles[i].display(sizeMultiplier, colorIndex);
   }
 
