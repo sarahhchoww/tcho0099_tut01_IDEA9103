@@ -126,7 +126,7 @@ function drawNetworkLines() { // connectors
 
 function initializeBackgroundDots() {
     backgroundDots=[];
-    let density=0.004; // So that background would not be too dense
+    let density=0.07; // So that background would not be too dense
     let numDots=floor(width*height*density); // Num. of dots changes with window size
 
     let galaxyColors = [
@@ -134,17 +134,20 @@ function initializeBackgroundDots() {
       color (113, 88, 78), // dark orange
       color (27, 20, 14), // blue black
       color (61, 60, 69), // dark blue
+      color (181, 156, 160), // light pink
+      color (130, 125, 134), // light purple
 
     ]
     for (let i = 0; i < numDots; i++) { // for loop generates the dots
+      let isGalaxy = random(1) < 0.995;  // Determine type first
     let dot = {
       baseX: random(width), // Randomised x and y-coordinates based on window width & height
       baseY: random(height),
       noiseOffsetX: random(1000),
       noiseOffsetY: random(1000, 2000), // Smooth animation, noise for x and y will fall in diff range
-      size: random(1.5, 4), // Different sizes for the dots
-      alpha: random(100, 200), // Different opacity for the dots -> creates DEPTH
-      isGalaxyColored: random(1) < 0.3,
+      size: isGalaxy ? random(1.5, 3.5) : random(2.5, 5), // smaller size range for galaxy dots, larger for white (star) dots 
+      alpha: isGalaxy ? random(100, 200) : random(200, 255), // higher opacity for white (star) dots, lower for galaxy dots (like background); diff opacity -> creates DEPTH
+      isGalaxyColored: isGalaxy,
       galaxyColor: random(galaxyColors)
     };
     backgroundDots.push(dot);
