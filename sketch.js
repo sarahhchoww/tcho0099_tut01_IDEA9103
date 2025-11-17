@@ -129,6 +129,13 @@ function initializeBackgroundDots() {
     let density=0.004; // So that background would not be too dense
     let numDots=floor(width*height*density); // Num. of dots changes with window size
 
+    let galaxyColors = [
+      color (92, 78, 80), // dark red
+      color (113, 88, 78), // dark orange
+      color (27, 20, 14), // blue black
+      color (61, 60, 69), // dark blue
+
+    ]
     for (let i = 0; i < numDots; i++) { // for loop generates the dots
     let dot = {
       baseX: random(width), // Randomised x and y-coordinates based on window width & height
@@ -136,7 +143,9 @@ function initializeBackgroundDots() {
       noiseOffsetX: random(1000),
       noiseOffsetY: random(1000, 2000), // Smooth animation, noise for x and y will fall in diff range
       size: random(1.5, 4), // Different sizes for the dots
-      alpha: random(100, 200) // Different opacity for the dots -> creates DEPTH
+      alpha: random(100, 200), // Different opacity for the dots -> creates DEPTH
+      isGalaxyColored: random(1) < 0.3,
+      galaxyColor: random(galaxyColors)
     };
     backgroundDots.push(dot);
   }
@@ -161,9 +170,14 @@ function updateAndDrawBackgroundDots() {
     if (currentX > width) currentX -= width;
     if (currentY < 0) currentY += height;
     if (currentY > height) currentY -= height;
+
+    if (dot.isGalaxyColored) {
+      fill(red(dot.galaxyColor), green(dot.galaxyColor), blue(dot.galaxyColor), dot.alpha * 0.7);
+    } else {
+      fill(255, 255, 255, dot.alpha);
+    }
     
-    fill(255, 255, 255, dot.alpha);
-    ellipse(currentX, currentY, dot.size);
+      ellipse(currentX, currentY, dot.size);
   }
   pop();
 }
