@@ -367,7 +367,6 @@ getPatternColorFromNoise() {
         let numLines = 40;
         stroke(col);
         strokeWeight(this.r * 0.015);
-        strokeCap(ROUND);
         
         for (let i = 0; i < numLines; i++) {
             let angle = (TWO_PI / numLines) * i + random(-0.05, 0.05); // add random jitter to each line
