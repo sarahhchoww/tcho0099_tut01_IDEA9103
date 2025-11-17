@@ -10,6 +10,6 @@ In addition to the gorup work, this sketch now looks more like the galaxy as the
 To match the theme, the white dots in the background also danced in the same way. Their randomised alpha values also provided visual depth. The rotating 'dash rings' also gives the feeling of 'self rotating planets'.</br>
 Moreover, with reference to the following images, a layer of dots was added to the background to model the star-studded galaxy. Most of dots are in a relatively dark color, with only some in a lighter tone to give a subtle feeling. The density of the dots are adjusted, so that the galaxy-dots fills the canvas, but the white dots, the brighter and larger stars, now rarer, will now stand out more than in the group work.
 ### Reference image
-![AboriginalGalaxy.jpg] </br>
+![Aboriginal art on the Galaxy](AboriginalGalaxy.jpg) </br>
 Short technical explanation here </br>
 The first step is to remove noLoop() since my work involves animation. This will prevent the sketch from being static.</br>
