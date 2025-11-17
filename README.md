@@ -21,11 +21,15 @@ let galaxyColors = [
 ```
 The density of the dots are adjusted, so that the galaxy-dots fills the canvas, but the white dots, the brighter and larger stars, now rarer, will now stand out more than in the group work.
 ```
-size: isGalaxy ? random(1.5, 3.5) : random(2.5, 5)
-alpha: isGalaxy ? random(100, 200) : random(200, 255)
+size: isGalaxy ? random(1.5, 3.5) : random(2.5, 5),
+alpha: isGalaxy ? random(100, 200) : random(200, 255),
 ```
 ### Reference image
 ![Aboriginal art on the Galaxy](AboriginalGalaxy.jpg "Reference image") </br>
 Image 1 - Aboriginal art on the Galaxy </br>
-Short technical explanation here </br>
+### Technical explanation
 The first step is to remove noLoop() since my work involves animation. This will prevent the sketch from being static.</br>
+Some changes have been made to this code in order to make different components animate. The class Circles have been kept the same. Arrays for pulsing circles, moving background dots and animating colors have been added to the list of global variables. </br>
+As the circles orbit and pulse, they require more space; hence, each row now only contains 3 circles instead of 5. Thus, the number of circles have decreased in order the accommodate the animation, while keeping the canvas clean. </br>
+All techniques used come from the class. They include circular movement, involving sine and cosine. Push and pop is also used to keep certain format inside the brackets. Floor and modulus could round down numbers, and ensure the randomized number do not exceed the array length. For loops are used to create the dots in the background, and also to generate noise values. </br>
+
