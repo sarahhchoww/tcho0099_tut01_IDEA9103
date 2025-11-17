@@ -98,9 +98,7 @@ function drawNetworkLines() { // connectors
     push(); 
     stroke(linkColor);
     strokeWeight(10); // Fixed wide width
-    // strokeCap(ROUND) sets rounded line endings for smoother, organic-looking connectors.
-    // From the p5.js reference: https://p5js.org/reference/p5/strokeCap/
-    strokeCap(ROUND); // Rounded ends for natural look
+    
 
     for (let i = 0; i < connectedNodes.length; i++) {
         for (let j = i + 1; j < connectedNodes.length; j++) { // Avoids checking the same pair
